@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 ################### check_mssql_database.py ####################
-# Version 1.3.0
+# Version 1.1.0
 # Date : Jan 25th 2012
 # Author  : Nicholas Scott ( scot0357 at gmail.com )
 # Help : scot0357 at gmail.com
@@ -341,3 +341,4 @@ def main( req , thresh , mode ):
     doExit( retTome )
 
 main( requiredArgs , threshArgs , modeArgs )
+

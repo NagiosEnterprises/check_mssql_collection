@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-################### check_mssql_server.py ####################
-# Version 1.2.0
+################### check_mssql_database.py ####################
+# Version 1.1.0
 # Date : Jan 25th 2012
 # Author  : Nicholas Scott ( scot0357 at gmail.com )
 # Help : scot0357 at gmail.com
@@ -206,8 +206,6 @@ def connectDB(hostname, vport, vuser, vpassword, vinstance):
         host += "\\" + vinstance
     if vport:
         host += ":" + vport
-    print host
-    #sys.exit(1)
     try:
         conn = pymssql.connect(host = host, user = vuser, password = vpassword, database = 'master')
         return conn
@@ -380,7 +378,7 @@ def time2connect( index ):
     try:
         begin = time.time()
         conn  = connectDB(  index['hostname'] , index['port'] , index['user'],\
-                            index['password'] )
+                            index['password'] , index['instance'] )
         end   = time.time()
         return get_return_tome( 'Time to connect' , 's' , round( end - begin , 3 ) )
     except:
@@ -445,7 +443,7 @@ def time2connect( index ):
     try:
         begin = time.time()
         conn  = connectDB(  index['hostname'] , index['port'] , index['user'],\
-                            index['password'] )
+                            index['password'] , index['instance'] )
         end   = time.time()
         return get_return_tome( 'Time to connect' , 's' , round( end - begin , 3 ) )
     except:
@@ -479,3 +477,4 @@ def main( req , thresh , mode ):
     doExit( retTome )
 
 main( requiredArgs , threshArgs , modeArgs )
+
