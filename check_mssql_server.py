@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 ################### check_mssql_database.py ####################
-# Version 1.1.0
-# Date : Jan 25th 2012
+# Version 2.0.1
+# Date : Jan 25th 2013
 # Author  : Nicholas Scott ( scot0357 at gmail.com )
 # Help : scot0357 at gmail.com
 # Licence : GPL - http://www.fsf.org/licenses/gpl.txt
-# TODO : Bug Testing, Feature Adding
+#
 # Changelog : 
 # 1.0.2 -   Fixed Uptime Counter to be based off of database
 #           Fixed divide by zero error in transpsec
@@ -16,6 +16,8 @@
 # 2.0.0 -   Complete rewrite of the structure, re-evaluated some queries
 #           to hopefully make them more portable | Thanks CFriese
 #           Updated the way averages are taken, no longer needs tempdb access
+# 2.0.1 -   Fixed try/finally statement to accomodate Python 2.4 for
+#           legacy systems
 #################################################################
 
 # Import Libraries
@@ -300,11 +302,11 @@ class MSSQLDeltaQuery(MSSQLQuery):
             tmpfile = open(self.picklename, 'w')
             tmpfile.close()
             tmpfile = open(self.picklename)
-        
         try:
-            last_run = pickle.load(tmpfile)
-        except EOFError, ValueError:
-            last_run = { 'time' : None, 'value' : None }
+            try:
+                last_run = pickle.load(tmpfile)
+            except EOFError, ValueError:
+                last_run = { 'time' : None, 'value' : None }
         finally:
             tmpfile.close()
         
