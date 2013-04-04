@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-################### check_mssql_database.py ####################
-# Version 2.0.1
-# Date : Jan 25th 2013
+################### check_mssql_database.py ############################
+# Version 2.0.2
+# Date : Apr 4 2013
 # Author  : Nicholas Scott ( scot0357 at gmail.com )
 # Help : scot0357 at gmail.com
 # Licence : GPL - http://www.fsf.org/licenses/gpl.txt
@@ -18,15 +18,18 @@
 #           Updated the way averages are taken, no longer needs tempdb access
 # 2.0.1 -   Fixed try/finally statement to accomodate Python 2.4 for
 #           legacy systems
-#################################################################
+# 2.0.2 -   Fixed issues where the SQL cache hit queries were yielding improper results
+#           when done on large systems | Thanks CTrahan
+########################################################################
 
-# Import Libraries
 import pymssql
 import time
 import sys
 import tempfile
-import time
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except:
+    import pickle
 from optparse import OptionParser, OptionGroup
 
 BASE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='';"
@@ -37,7 +40,7 @@ DIVI_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name LIKE '%s%%' 
 MODES     = {
     
     'bufferhitratio'    : { 'help'      : 'Buffer Cache Hit Ratio',
-                            'stdout'    : 'Buffer Cache Hit Ratio is %s',
+                            'stdout'    : 'Buffer Cache Hit Ratio is %s%%',
                             'label'     : 'buffer_cache_hit_ratio',
                             'unit'      : '%',
                             'query'     : DIVI_QUERY % ('Buffer cache hit ratio', ''),
@@ -88,14 +91,14 @@ MODES     = {
                             },
     
     'lazywrites'        : { 'help'      : 'Lazy Writes / Sec',
-                            'stdout'    : 'Lazy Writes / Sec is %s ',
+                            'stdout'    : 'Lazy Writes / Sec is %s/sec',
                             'label'     : 'lazy_writes',
                             'query'     : BASE_QUERY % 'Lazy writes/sec',
                             'type'      : 'delta'
                             },
     
     'readahead'         : { 'help'      : 'Readahead Pages / Sec',
-                            'stdout'    : 'Readahead Pages / Sec is %s',
+                            'stdout'    : 'Readahead Pages / Sec is %s/sec',
                             'label'     : 'readaheads',
                             'query'     : BASE_QUERY % 'Readahead pages/sec',
                             'type'      : 'delta',
@@ -103,14 +106,14 @@ MODES     = {
                             
     
     'pagereads'         : { 'help'      : 'Page Reads / Sec',
-                            'stdout'    : 'Page Reads / Sec is %s',
+                            'stdout'    : 'Page Reads / Sec is %s/sec',
                             'label'     : 'page_reads',
                             'query'     : BASE_QUERY % 'Page reads/sec',
                             'type'      : 'delta'
                             },
     
     'checkpoints'       : { 'help'      : 'Checkpoint Pages / Sec',
-                            'stdout'    : 'Checkpoint Pages / Sec is %s',
+                            'stdout'    : 'Checkpoint Pages / Sec is %s/sec',
                             'label'     : 'checkpoint_pages',
                             'query'     : BASE_QUERY % 'Checkpoint pages/Sec',
                             'type'      : 'delta'
@@ -118,42 +121,42 @@ MODES     = {
                             
     
     'pagewrites'        : { 'help'      : 'Page Writes / Sec',
-                            'stdout'    : 'Page Writes / Sec is %s',
+                            'stdout'    : 'Page Writes / Sec is %s/sec',
                             'label'     : 'page_writes',
                             'query'     : BASE_QUERY % 'Page writes/sec',
                             'type'      : 'delta',
                             },
     
     'lockrequests'      : { 'help'      : 'Lock Requests / Sec',
-                            'stdout'    : 'Lock Requests / Sec is %s',
+                            'stdout'    : 'Lock Requests / Sec is %s/sec',
                             'label'     : 'lock_requests',
                             'query'     : INST_QUERY % ('Lock requests/sec', '_Total'),
                             'type'      : 'delta',
                             },
     
     'locktimeouts'      : { 'help'      : 'Lock Timeouts / Sec',
-                            'stdout'    : 'Lock Timeouts / Sec is %s',
+                            'stdout'    : 'Lock Timeouts / Sec is %s/sec',
                             'label'     : 'lock_timeouts',
                             'query'     : INST_QUERY % ('Lock timeouts/sec', '_Total'),
                             'type'      : 'delta',
                             },
     
     'deadlocks'         : { 'help'      : 'Deadlocks / Sec',
-                            'stdout'    : 'Deadlocks / Sec is %s',
+                            'stdout'    : 'Deadlocks / Sec is %s/sec',
                             'label'     : 'deadlocks',
                             'query'     : INST_QUERY % ('Number of Deadlocks/sec', '_Total'),
                             'type'      : 'delta',
                             },
     
     'lockwaits'         : { 'help'      : 'Lockwaits / Sec',
-                            'stdout'    : 'Lockwaits / Sec is %s',
+                            'stdout'    : 'Lockwaits / Sec is %s/sec',
                             'label'     : 'lockwaits',
                             'query'     : INST_QUERY % ('Lock Waits/sec', '_Total'),
                             'type'      : 'delta',
                             },
     
     'lockwait'          : { 'help'      : 'Lock Wait Average Time (ms)',
-                            'stdout'    : 'Lock Wait Average Time (ms) is %s',
+                            'stdout'    : 'Lock Wait Average Time (ms) is %sms',
                             'label'     : 'lockwait',
                             'unit'      : 'ms',
                             'query'     : INST_QUERY % ('Lock Wait Time (ms)', '_Total'),
@@ -161,7 +164,7 @@ MODES     = {
                             },
     
     'averagewait'       : { 'help'      : 'Average Wait Time (ms)',
-                            'stdout'    : 'Average Wait Time (ms) is %s',
+                            'stdout'    : 'Average Wait Time (ms) is %sms',
                             'label'     : 'averagewait',
                             'unit'      : 'ms',
                             'query'     : INST_QUERY % ('Average Wait Time (ms)', '_Total'),
@@ -169,45 +172,44 @@ MODES     = {
                             },
     
     'pagesplits'        : { 'help'      : 'Page Splits / Sec',
-                            'stdout'    : 'Page Splits / Sec is %s',
+                            'stdout'    : 'Page Splits / Sec is %s/sec',
                             'label'     : 'page_splits',
                             'query'     : OBJE_QUERY % 'Page Splits/sec',
                             'type'      : 'delta',
                             },
     
     'cachehit'          : { 'help'      : 'Cache Hit Ratio',
-                            'stdout'    : 'Cache Hit Ratio is %s',
+                            'stdout'    : 'Cache Hit Ratio is %s%%',
                             'label'     : 'cache_hit_ratio',
-                            'query'     : INST_QUERY % ('Cache Hit Ratio', '_Total'),
-                            'query1'    : INST_QUERY % ('Cache Hit Ratio Base', '_Total'),
+                            'query'     : DIVI_QUERY % ('Cache Hit Ratio', '_Total'),
                             'type'      : 'divide',
                             'unit'      : '%',
                             'modifier'  : 100,
                             },
     
     'batchreq'          : { 'help'      : 'Batch Requests / Sec',
-                            'stdout'    : 'Batch Requests / Sec is %s',
+                            'stdout'    : 'Batch Requests / Sec is %s/sec',
                             'label'     : 'batch_requests',
                             'query'     : OBJE_QUERY % 'Batch Requests/sec',
                             'type'      : 'delta',
                             },
     
     'sqlcompilations'   : { 'help'      : 'SQL Compilations / Sec',
-                            'stdout'    : 'SQL Compilations / Sec is %s',
+                            'stdout'    : 'SQL Compilations / Sec is %s/sec',
                             'label'     : 'sql_compilations',
                             'query'     : OBJE_QUERY % 'SQL Compilations/sec',
                             'type'      : 'delta',
                             },
     
     'fullscans'         : { 'help'      : 'Full Scans / Sec',
-                            'stdout'    : 'Full Scans / Sec is %s',
+                            'stdout'    : 'Full Scans / Sec is %s/sec',
                             'label'     : 'full_scans',
                             'query'     : OBJE_QUERY % 'Full Scans/sec',
                             'type'      : 'delta',
                             },
     
     'pagelife'          : { 'help'      : 'Page Life Expectancy',
-                            'stdout'    : 'Page Life Expectancy is %s',
+                            'stdout'    : 'Page Life Expectancy is %s/sec',
                             'label'     : 'page_life_expectancy',
                             'query'     : OBJE_QUERY % 'Page life expectancy',
                             'type'      : 'standard'
