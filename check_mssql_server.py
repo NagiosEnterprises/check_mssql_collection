@@ -32,6 +32,7 @@ from optparse import OptionParser, OptionGroup
 BASE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='';"
 INST_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='%s';"
 OBJE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s';"
+DIVI_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name LIKE '%s%%' AND instance_name='%s';"
 
 MODES     = {
     
@@ -39,9 +40,9 @@ MODES     = {
                             'stdout'    : 'Buffer Cache Hit Ratio is %s',
                             'label'     : 'buffer_cache_hit_ratio',
                             'unit'      : '%',
-                            'query'     : BASE_QUERY % 'Buffer cache hit ratio',
-                            'query1'    : BASE_QUERY % 'Buffer cache hit ratio base',
+                            'query'     : DIVI_QUERY % ('Buffer cache hit ratio', ''),
                             'type'      : 'divide',
+                            'modifier'  : 100,
                             },
     
     'pagelooks'         : { 'help'      : 'Page Lookups Per Second',
@@ -272,19 +273,16 @@ class MSSQLQuery(object):
 
 class MSSQLDivideQuery(MSSQLQuery):
     
-    def __init__(self, query1, *args, **kwargs):
-        self.query1 = query1
+    def __init__(self, *args, **kwargs):
         super(MSSQLDivideQuery, self).__init__(*args, **kwargs)
     
     def calculate_result(self):
-        self.result = (float(self.query_result) / self.query_result1) * 100
+        self.result = (float(self.query_result[0]) / self.query_result[1]) * self.modifier
     
     def run_on_connection(self, connection):
         cur = connection.cursor()
         cur.execute(self.query)
-        self.query_result = cur.fetchone()[0]
-        cur.execute(self.query1)
-        self.query_result1 = cur.fetchone()[0]
+        self.query_result = [x[0] for x in cur.fetchall()]
 
 class MSSQLDeltaQuery(MSSQLQuery):
     
@@ -449,15 +447,15 @@ def run_tests(mssql, options, host):
             print "%s failed with: %s" % (mode, e)
     print '%d/%d tests failed.' % (failed, total)
     
-
-try:
-    main()
-except pymssql.OperationalError, e:
-    print e
-    sys.exit(3)
-except IOError, e:
-    print e
-    sys.exit(3)
-except NagiosReturn, e:
-    print e.message
-    sys.exit(e.code)
+if __name__ == '__main__':
+    try:
+        main()
+    except pymssql.OperationalError, e:
+        print e
+        sys.exit(3)
+    except IOError, e:
+        print e
+        sys.exit(3)
+    except NagiosReturn, e:
+        print e.message
+        sys.exit(e.code)
