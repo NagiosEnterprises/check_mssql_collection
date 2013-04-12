@@ -13,6 +13,8 @@
 #           Added check to see if pymssql is installed
 # 1.3.0 -   Added ability specify MSSQL instances
 # 2.0.0 -   Complete Revamp/Rewrite based on the server version of this plugin
+# 2.0.1 -   Fixed bug where temp file was named same as other for host and numbers
+#           were coming back bogus.
 ########################################################################
 
 import pymssql
@@ -176,7 +178,7 @@ class MSSQLDeltaQuery(MSSQLQuery):
     
     def make_pickle_name(self):
         tmpdir = tempfile.gettempdir()
-        tmpname = hash(self.host + self.table)
+        tmpname = hash(self.host + self.table + self.query)
         self.picklename = '%s/mssql-%s.tmp' % (tmpdir, tmpname)
     
     def calculate_result(self):
@@ -350,4 +352,8 @@ if __name__ == '__main__':
     except NagiosReturn, e:
         print e.message
         sys.exit(e.code)
+    except Exception, e:
+        print type(e)
+        print "Caught unexpected error. This could be caused by your sysperfinfo not containing the proper entries for this query, and you may delete this service check."
+        sys.exit(3)
 

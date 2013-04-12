@@ -167,8 +167,8 @@ MODES     = {
                             'stdout'    : 'Average Wait Time (ms) is %sms',
                             'label'     : 'averagewait',
                             'unit'      : 'ms',
-                            'query'     : INST_QUERY % ('Average Wait Time (ms)', '_Total'),
-                            'type'      : 'standard',
+                            'query'     : DIVI_QUERY % ('Average Wait Time', '_Total'),
+                            'type'      : 'divice',
                             },
     
     'pagesplits'        : { 'help'      : 'Page Splits / Sec',
@@ -215,6 +215,13 @@ MODES     = {
                             'type'      : 'standard'
                             },
     
+    #~ 'debug'             : { 'help'      : 'Used as a debugging tool.',
+                            #~ 'stdout'    : 'Debugging: ',
+                            #~ 'label'     : 'debug',
+                            #~ 'query'     : DIVI_QUERY % ('Average Wait Time', '_Total'),
+                            #~ 'type'      : 'divide' 
+                            #~ },
+    
     'time2connect'      : { 'help'      : 'Time to connect to the database.' },
     
     'test'              : { 'help'      : 'Run tests of all queries against the database.' },
@@ -232,7 +239,10 @@ def return_nagios(options, stdout='', result='', unit='', label=''):
         prefix = 'OK: '
         code = 0
     strresult = str(result)
-    stdout = stdout % (strresult)
+    try:
+        stdout = stdout % (strresult)
+    except TypeError, e:
+        pass
     stdout = '%s%s|%s=%s%s;%s;%s;;;' % (prefix, stdout, label, strresult, unit, options.warning or '', options.critical or '')
     raise NagiosReturn(stdout, code)
 
@@ -290,7 +300,7 @@ class MSSQLDeltaQuery(MSSQLQuery):
     
     def make_pickle_name(self):
         tmpdir = tempfile.gettempdir()
-        tmpname = hash(self.host)
+        tmpname = hash(self.host + self.query)
         self.picklename = '%s/mssql-%s.tmp' % (tmpdir, tmpname)
     
     def calculate_result(self):
@@ -455,9 +465,15 @@ if __name__ == '__main__':
     except pymssql.OperationalError, e:
         print e
         sys.exit(3)
+    except pymssql.InterfaceError, e:
+        print e
+        sys.exit(3)
     except IOError, e:
         print e
         sys.exit(3)
     except NagiosReturn, e:
         print e.message
         sys.exit(e.code)
+    #~ except Exception, e:
+        #~ print "Caught unexpected error. This could be caused by your sysperfinfo not containing the proper entries for this query, and you may delete this service check."
+        #~ sys.exit(3)
