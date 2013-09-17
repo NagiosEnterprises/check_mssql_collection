@@ -103,7 +103,7 @@ MODES     = {
     'datasize'          : { 'help'      : 'Database Size',
                             'stdout'    : 'Database size is %sKB',
                             'label'     : 'KB',
-                            'query'     : BASE_QUERY % 'Log Growths',
+                            'query'     : BASE_QUERY % 'Data File(s) Size (KB)',
                             'type'      : 'standard'
                             },
     
