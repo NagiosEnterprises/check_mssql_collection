@@ -168,7 +168,7 @@ MODES     = {
                             'label'     : 'averagewait',
                             'unit'      : 'ms',
                             'query'     : DIVI_QUERY % ('Average Wait Time', '_Total'),
-                            'type'      : 'divice',
+                            'type'      : 'divide',
                             },
     
     'pagesplits'        : { 'help'      : 'Page Splits / Sec',
