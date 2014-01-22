@@ -103,7 +103,7 @@ MODES     = {
     'datasize'          : { 'help'      : 'Database Size',
                             'stdout'    : 'Database size is %sKB',
                             'label'     : 'KB',
-                            'query'     : BASE_QUERY % 'Log Growths',
+                            'query'     : BASE_QUERY % 'Data File(s) Size (KB)',
                             'type'      : 'standard'
                             },
     
@@ -113,10 +113,14 @@ MODES     = {
 }
 
 def return_nagios(options, stdout='', result='', unit='', label=''):
-    if is_within_range(options.critical, result):
+    if int(options.critical) < int(options.warning):
+        invert = True
+    else:
+        invert = False
+    if is_within_range(options.critical, result, invert):
         prefix = 'CRITICAL: '
         code = 2
-    elif is_within_range(options.warning, result):
+    elif is_within_range(options.warning, result, invert):
         prefix = 'WARNING: '
         code = 1
     else:
@@ -214,7 +218,7 @@ class MSSQLDeltaQuery(MSSQLQuery):
         pickle.dump(new_run, tmpfile)
         tmpfile.close()
 
-def is_within_range(nagstring, value):
+def is_within_range(nagstring, value, invert = False):
     if not nagstring:
         return False
     import re
@@ -229,7 +233,10 @@ def is_within_range(nagstring, value):
     for regstr,func in actions:
         res = re.match(regstr,nagstring)
         if res: 
-            return func(res)
+            if invert:
+                return not func(res)
+            else:
+                return func(res)
     raise Exception('Improper warning/critical format.')
 
 def parse_args():
