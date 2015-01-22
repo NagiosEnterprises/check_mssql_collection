@@ -243,7 +243,7 @@ def return_nagios(options, stdout='', result='', unit='', label=''):
         stdout = stdout % (strresult)
     except TypeError, e:
         pass
-    stdout = '%s%s|%s=%s%s;%s;%s;;;' % (prefix, stdout, label, strresult, unit, options.warning or '', options.critical or '')
+    stdout = '%s%s|%s=%s%s;%s;%s;;' % (prefix, stdout, label, strresult, unit, options.warning or '', options.critical or '')
     raise NagiosReturn(stdout, code)
 
 class NagiosReturn(Exception):
