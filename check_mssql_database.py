@@ -128,7 +128,7 @@ def return_nagios(options, stdout='', result='', unit='', label=''):
         code = 0
     strresult = str(result)
     stdout = stdout % (strresult)
-    stdout = '%s%s|%s=%s%s;%s;%s;;;' % (prefix, stdout, label, strresult, unit, options.warning or '', options.critical or '')
+    stdout = '%s%s|%s=%s%s;%s;%s;;' % (prefix, stdout, label, strresult, unit, options.warning or '', options.critical or '')
     raise NagiosReturn(stdout, code)
 
 class NagiosReturn(Exception):
