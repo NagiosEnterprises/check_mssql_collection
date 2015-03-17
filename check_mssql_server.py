@@ -20,6 +20,7 @@
 #           legacy systems
 # 2.0.2 -   Fixed issues where the SQL cache hit queries were yielding improper results
 #           when done on large systems | Thanks CTrahan
+# Modified 01/22/2015 Removed extraneous ';' from output. -BD-G
 ########################################################################
 
 import pymssql
@@ -32,10 +33,10 @@ except:
     import pickle
 from optparse import OptionParser, OptionGroup
 
-BASE_QUERY = "SELECT cntr_value FROM sys.dm_os_performance_counters WHERE counter_name='%s' AND instance_name='';"
-INST_QUERY = "SELECT cntr_value FROM sys.dm_os_performance_counters WHERE counter_name='%s' AND instance_name='%s';"
-OBJE_QUERY = "SELECT cntr_value FROM sys.dm_os_performance_counters WHERE counter_name='%s';"
-DIVI_QUERY = "SELECT cntr_value FROM sys.dm_os_performance_counters WHERE counter_name LIKE '%s%%' AND instance_name='%s';"
+BASE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='';"
+INST_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='%s';"
+OBJE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s';"
+DIVI_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name LIKE '%s%%' AND instance_name='%s';"
 
 MODES     = {
     
@@ -289,7 +290,10 @@ class MSSQLDivideQuery(MSSQLQuery):
         super(MSSQLDivideQuery, self).__init__(*args, **kwargs)
     
     def calculate_result(self):
-        self.result = (float(self.query_result[0]) / self.query_result[1]) * self.modifier
+        if self.query_result[1] != 0:
+            self.result = (float(self.query_result[0]) / self.query_result[1]) * self.modifier
+        else:
+            self.result = float(self.query_result[0]) * self.modifier
     
     def run_on_connection(self, connection):
         cur = connection.cursor()
