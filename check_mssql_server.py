@@ -20,6 +20,7 @@
 #           legacy systems
 # 2.0.2 -   Fixed issues where the SQL cache hit queries were yielding improper results
 #           when done on large systems | Thanks CTrahan
+# 2.0.3 -   Remove misleading description of lockwait, removing the word Average -SW
 # Modified 01/22/2015 Removed extraneous ';' from output. -BD-G
 ########################################################################
 
@@ -156,8 +157,8 @@ MODES     = {
                             'type'      : 'delta',
                             },
     
-    'lockwait'          : { 'help'      : 'Lock Wait Average Time (ms)',
-                            'stdout'    : 'Lock Wait Average Time (ms) is %sms',
+    'lockwait'          : { 'help'      : 'Lock Wait Time (ms)',
+                            'stdout'    : 'Lock Wait Time (ms) is %sms',
                             'label'     : 'lockwait',
                             'unit'      : 'ms',
                             'query'     : INST_QUERY % ('Lock Wait Time (ms)', '_Total'),
