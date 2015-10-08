@@ -38,9 +38,34 @@ BASE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND ins
 INST_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='%s';"
 OBJE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s';"
 DIVI_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name LIKE '%s%%' AND instance_name='%s';"
+CON_QUERY="SELECT count(*) FROM sys.sysprocesses;"
+MEM_QUERY="SELECT 100*(1.0-(available_physical_memory_kb/(total_physical_memory_kb*1.0))) FROM sys.dm_os_sys_memory;" 
+CPU_QUERY="SELECT "+\
+	"record.value('(./Record/SchedulerMonitorEvent/SystemHealth/ProcessUtilization)[1]', 'int') AS [CPU] "+\
+	"FROM ( "+ \
+		"SELECT[timestamp], CONVERT(XML, record) AS [record] "+\
+       		"FROM sys.dm_os_ring_buffers WITH ( NOLOCK ) "+\
+       		"WHERE ring_buffer_type=N'RING_BUFFER_SCHEDULER_MONITOR' "+\
+			"AND record LIKE N'%<SystemHealth>%'"+\
+	") as x;"
 
 MODES     = {
-    
+    'connections'	: { 'help'	: 'Number of open connections',
+			    'stdout'	: 'Number of open connections is %s',
+			    'label'	: 'connections',
+			    'type'	: 'standard',
+			    'query'	: CON_QUERY 
+			  },	
+    'memory'		: { 'help'	: 'Used server memory',
+			    'stdout'    : 'Server uses %s%% of memory',
+			    'label'	: 'memory',
+			    'query'	: MEM_QUERY
+			  },	
+    'cpu'		: { 'help'	: 'Server CPU utilization',
+			    'stdout'    : 'Current CPU utilization is %s%%',
+			    'lablel'	: 'cpu',
+			    'query'     : CPU_QUERY
+			  },
     'bufferhitratio'    : { 'help'      : 'Buffer Cache Hit Ratio',
                             'stdout'    : 'Buffer Cache Hit Ratio is %s%%',
                             'label'     : 'buffer_cache_hit_ratio',
