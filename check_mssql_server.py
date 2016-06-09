@@ -1,30 +1,29 @@
 #!/usr/bin/env python
-################### check_mssql_database.py ############################
+
+################### check_mssql_server.py ##############################
 # Version    : 2.1.0
-# Date 	     : 06/09/2016
+# Date       : 06/09/2016
 # Maintainer : Nagios Enterprises, LLC
 # Licence    : GPLv3 (http://www.fsf.org/licenses/gpl.txt)
 #
 # Author/Maintainers:
-#	Nicholas Scott (Original author, Nagios)
+#   Nicholas Scott (Original author, Nagios)
 #   Jake Omann (Nagios)
 #   Scott Wilkerson (Nagios)
 #
 # Changelog :
-# 2.1.0 - Added server cpu usage, memory usage, and connection counters (campenberger)
-# 2.0.3 - Remove misleading description of lockwait, removing the word Average (SW)
-# 2.0.2 - Fixed issues where the SQL cache hit queries were yielding improper results
-#         when done on large systems (CTrahan)
-# 2.0.1 - Fixed try/finally statement to accomodate Python 2.4 for legacy systems (NS)
-# 2.0.0 - Complete rewrite of the structure, re-evaluated some queries
-#         to hopefully make them more portable (CFriese)
-#         Updated the way averages are taken, no longer needs tempdb access (NS)
-# 1.2.0 - Added ability to specify instances (NS)
-# 1.1.0 - Fixed port bug allowing for non default ports (CBTSDon)
-#         Added batchreq, sqlcompilations, fullscans, pagelife (Thanks mike from austria)
-#         Added mode error checking which caused non-graceful exit (Thanks mike from austria)
-# 1.0.2 - Fixed Uptime Counter to be based off of database (NS)
-#         Fixed divide by zero error in transpsec (NS)
+#   2.1.0 - Added server cpu usage, memory usage, and connection counters (campenberger)
+#   2.0.3 - Remove misleading description of lockwait, removing the word Average (SW)
+#   2.0.2 - Fixed issues where the SQL cache hit queries were yielding improper results when done on large systems (CTrahan)
+#   2.0.1 - Fixed try/finally statement to accomodate Python 2.4 for legacy systems (NS)
+#   2.0.0 - Complete rewrite of the structure, re-evaluated some queries to hopefully make them more portable (CFriese)
+#           Updated the way averages are taken, no longer needs tempdb access (NS)
+#   1.2.0 - Added ability to specify instances (NS)
+#   1.1.0 - Fixed port bug allowing for non default ports (CBTSDon)
+#           Added batchreq, sqlcompilations, fullscans, pagelife (Thanks mike from austria)
+#           Added mode error checking which caused non-graceful exit (Thanks mike from austria)
+#   1.0.2 - Fixed Uptime Counter to be based off of database (NS)
+#           Fixed divide by zero error in transpsec (NS)
 #
 ########################################################################
 
@@ -45,33 +44,34 @@ DIVI_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name LIKE '%s%%' 
 CON_QUERY = "SELECT count(*) FROM sys.sysprocesses;"
 MEM_QUERY = "SELECT 100*(1.0-(available_physical_memory_kb/(total_physical_memory_kb*1.0))) FROM sys.dm_os_sys_memory;" 
 CPU_QUERY = "SELECT "+\
-	"record.value('(./Record/SchedulerMonitorEvent/SystemHealth/ProcessUtilization)[1]', 'int') AS [CPU] "+\
-	"FROM ( "+\
-		"SELECT[timestamp], CONVERT(XML, record) AS [record] "+\
-       		"FROM sys.dm_os_ring_buffers WITH ( NOLOCK ) "+\
-       		"WHERE ring_buffer_type=N'RING_BUFFER_SCHEDULER_MONITOR' "+\
-			"AND record LIKE N'%<SystemHealth>%'"+\
-	") as x;"
+    "record.value('(./Record/SchedulerMonitorEvent/SystemHealth/ProcessUtilization)[1]', 'int') AS [CPU] "+\
+    "FROM ( "+\
+        "SELECT[timestamp], CONVERT(XML, record) AS [record] "+\
+            "FROM sys.dm_os_ring_buffers WITH ( NOLOCK ) "+\
+            "WHERE ring_buffer_type=N'RING_BUFFER_SCHEDULER_MONITOR' "+\
+            "AND record LIKE N'%<SystemHealth>%'"+\
+    ") as x;"
 
 MODES = {
-    'connections'	    : { 'help'	    : 'Number of open connections',
-			                'stdout'	: 'Number of open connections is %s',
-			                'label'	    : 'connections',
-			                'type'	    : 'standard',
-			                'query'	    : CON_QUERY 
-			                },
 
-    'memory'		    : { 'help'	    : 'Used server memory',
-			                'stdout'    : 'Server using %s%% of memory',
-			                'label'	    : 'memory',
-			                'query'	    : MEM_QUERY
-			                },
+    'connections'       : { 'help'      : 'Number of open connections',
+                            'stdout'    : 'Number of open connections is %s',
+                            'label'     : 'connections',
+                            'type'      : 'standard',
+                            'query'     : CON_QUERY 
+                            },
 
-    'cpu'		        : { 'help'	    : 'Server CPU utilization',
-			                'stdout'    : 'Current CPU utilization is %s%%',
-			                'lablel'	: 'cpu',
-			                'query'     : CPU_QUERY
-			                },
+    'memory'            : { 'help'      : 'Used server memory',
+                            'stdout'    : 'Server using %s%% of memory',
+                            'label'     : 'memory',
+                            'query'     : MEM_QUERY
+                            },
+
+    'cpu'               : { 'help'      : 'Server CPU utilization',
+                            'stdout'    : 'Current CPU utilization is %s%%',
+                            'lablel'    : 'cpu',
+                            'query'     : CPU_QUERY
+                            },
 
     'bufferhitratio'    : { 'help'      : 'Buffer Cache Hit Ratio',
                             'stdout'    : 'Buffer Cache Hit Ratio is %s%%',
@@ -511,6 +511,7 @@ if __name__ == '__main__':
     except NagiosReturn, e:
         print e.message
         sys.exit(e.code)
-    #~ except Exception, e:
-        #~ print "Caught unexpected error. This could be caused by your sysperfinfo not containing the proper entries for this query, and you may delete this service check."
-        #~ sys.exit(3)
+    except Exception, e:
+        print type(e)
+        print "Caught unexpected error. This could be caused by your sysperfinfo not containing the proper entries for this query, and you may delete this service check."
+        sys.exit(3)

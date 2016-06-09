@@ -1,20 +1,25 @@
 #!/usr/bin/env python
 
-########################################################################
-# Date : Apr 4th, 2013
-# Author  : Nicholas Scott ( scot0357 at gmail.com )
-# Help : scot0357 at gmail.com
-# Licence : GPL - http://www.fsf.org/licenses/gpl.txt
-# TODO : Bug Testing, Feature Adding
+################### check_mssql_database.py ############################
+# Version    : 2.0.1
+# Date       : 06/09/2016
+# Maintainer : Nagios Enterprises, LLC
+# Licence    : GPLv3 (http://www.fsf.org/licenses/gpl.txt)
+#
+# Author/Maintainers:
+#   Nicholas Scott (Original author, Nagios)
+#   Jake Omann (Nagios)
+#   Scott Wilkerson (Nagios)
+#
 # Changelog:
-# 1.1.0 -   Fixed port bug allowing for non default ports | Thanks CBTSDon
-#           Added mode error checking which caused non-graceful exit | Thanks mike from austria
-# 1.2.0 -   Added ability to monitor instances
-#           Added check to see if pymssql is installed
-# 1.3.0 -   Added ability specify MSSQL instances
-# 2.0.0 -   Complete Revamp/Rewrite based on the server version of this plugin
-# 2.0.1 -   Fixed bug where temp file was named same as other for host and numbers
-#           were coming back bogus.
+#   2.0.1 - Fixed bug where temp file was named same as other for host and numbers were coming back bogus. (NS)
+#   2.0.0 - Complete Revamp/Rewrite based on the server version of this plugin (NS)
+#   1.3.0 - Added ability specify MSSQL instances (NS)
+#   1.2.0 - Added ability to monitor instances (NS)
+#           Added check to see if pymssql is installed (NS)
+#   1.1.0 - Fixed port bug allowing for non default ports (CBTSDon)
+#           Added mode error checking which caused non-graceful exit (Thanks mike from austria)
+#
 ########################################################################
 
 import pymssql
@@ -30,7 +35,7 @@ from optparse import OptionParser, OptionGroup
 BASE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='%%s';"
 DIVI_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name LIKE '%s%%%%' AND instance_name='%%s';"
 
-MODES     = {
+MODES = {
     
     'logcachehit'       : { 'help'      : 'Log Cache Hit Ratio',
                             'stdout'    : 'Log Cache Hit Ratio is %s%%',
