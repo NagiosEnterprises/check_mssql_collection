@@ -1,27 +1,31 @@
 #!/usr/bin/env python
 ################### check_mssql_database.py ############################
-# Version 2.0.2
-# Date : Apr 4 2013
-# Author  : Nicholas Scott ( scot0357 at gmail.com )
-# Help : scot0357 at gmail.com
-# Licence : GPL - http://www.fsf.org/licenses/gpl.txt
+# Version    : 2.1.0
+# Date 	     : 06/09/2016
+# Maintainer : Nagios Enterprises, LLC
+# Licence    : GPLv3 (http://www.fsf.org/licenses/gpl.txt)
 #
-# Changelog : 
-# 1.0.2 -   Fixed Uptime Counter to be based off of database
-#           Fixed divide by zero error in transpsec
-# 1.1.0 -   Fixed port bug allowing for non default ports | Thanks CBTSDon
-#           Added batchreq, sqlcompilations, fullscans, pagelife | Thanks mike from austria
-#           Added mode error checking which caused non-graceful exit | Thanks mike from austria
-# 1.2.0 -   Added ability to specify instances
-# 2.0.0 -   Complete rewrite of the structure, re-evaluated some queries
-#           to hopefully make them more portable | Thanks CFriese
-#           Updated the way averages are taken, no longer needs tempdb access
-# 2.0.1 -   Fixed try/finally statement to accomodate Python 2.4 for
-#           legacy systems
-# 2.0.2 -   Fixed issues where the SQL cache hit queries were yielding improper results
-#           when done on large systems | Thanks CTrahan
-# 2.0.3 -   Remove misleading description of lockwait, removing the word Average -SW
-# Modified 01/22/2015 Removed extraneous ';' from output. -BD-G
+# Author/Maintainers:
+#	Nicholas Scott (Original author, Nagios)
+#   Jake Omann (Nagios)
+#   Scott Wilkerson (Nagios)
+#
+# Changelog :
+# 2.1.0 - Added server cpu usage, memory usage, and connection counters (campenberger)
+# 2.0.3 - Remove misleading description of lockwait, removing the word Average (SW)
+# 2.0.2 - Fixed issues where the SQL cache hit queries were yielding improper results
+#         when done on large systems (CTrahan)
+# 2.0.1 - Fixed try/finally statement to accomodate Python 2.4 for legacy systems (NS)
+# 2.0.0 - Complete rewrite of the structure, re-evaluated some queries
+#         to hopefully make them more portable (CFriese)
+#         Updated the way averages are taken, no longer needs tempdb access (NS)
+# 1.2.0 - Added ability to specify instances (NS)
+# 1.1.0 - Fixed port bug allowing for non default ports (CBTSDon)
+#         Added batchreq, sqlcompilations, fullscans, pagelife (Thanks mike from austria)
+#         Added mode error checking which caused non-graceful exit (Thanks mike from austria)
+# 1.0.2 - Fixed Uptime Counter to be based off of database (NS)
+#         Fixed divide by zero error in transpsec (NS)
+#
 ########################################################################
 
 import pymssql
@@ -38,34 +42,37 @@ BASE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND ins
 INST_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='%s';"
 OBJE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s';"
 DIVI_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name LIKE '%s%%' AND instance_name='%s';"
-CON_QUERY="SELECT count(*) FROM sys.sysprocesses;"
-MEM_QUERY="SELECT 100*(1.0-(available_physical_memory_kb/(total_physical_memory_kb*1.0))) FROM sys.dm_os_sys_memory;" 
-CPU_QUERY="SELECT "+\
+CON_QUERY = "SELECT count(*) FROM sys.sysprocesses;"
+MEM_QUERY = "SELECT 100*(1.0-(available_physical_memory_kb/(total_physical_memory_kb*1.0))) FROM sys.dm_os_sys_memory;" 
+CPU_QUERY = "SELECT "+\
 	"record.value('(./Record/SchedulerMonitorEvent/SystemHealth/ProcessUtilization)[1]', 'int') AS [CPU] "+\
-	"FROM ( "+ \
+	"FROM ( "+\
 		"SELECT[timestamp], CONVERT(XML, record) AS [record] "+\
        		"FROM sys.dm_os_ring_buffers WITH ( NOLOCK ) "+\
        		"WHERE ring_buffer_type=N'RING_BUFFER_SCHEDULER_MONITOR' "+\
 			"AND record LIKE N'%<SystemHealth>%'"+\
 	") as x;"
 
-MODES     = {
-    'connections'	: { 'help'	: 'Number of open connections',
-			    'stdout'	: 'Number of open connections is %s',
-			    'label'	: 'connections',
-			    'type'	: 'standard',
-			    'query'	: CON_QUERY 
-			  },	
-    'memory'		: { 'help'	: 'Used server memory',
-			    'stdout'    : 'Server uses %s%% of memory',
-			    'label'	: 'memory',
-			    'query'	: MEM_QUERY
-			  },	
-    'cpu'		: { 'help'	: 'Server CPU utilization',
-			    'stdout'    : 'Current CPU utilization is %s%%',
-			    'lablel'	: 'cpu',
-			    'query'     : CPU_QUERY
-			  },
+MODES = {
+    'connections'	    : { 'help'	    : 'Number of open connections',
+			                'stdout'	: 'Number of open connections is %s',
+			                'label'	    : 'connections',
+			                'type'	    : 'standard',
+			                'query'	    : CON_QUERY 
+			                },
+
+    'memory'		    : { 'help'	    : 'Used server memory',
+			                'stdout'    : 'Server using %s%% of memory',
+			                'label'	    : 'memory',
+			                'query'	    : MEM_QUERY
+			                },
+
+    'cpu'		        : { 'help'	    : 'Server CPU utilization',
+			                'stdout'    : 'Current CPU utilization is %s%%',
+			                'lablel'	: 'cpu',
+			                'query'     : CPU_QUERY
+			                },
+
     'bufferhitratio'    : { 'help'      : 'Buffer Cache Hit Ratio',
                             'stdout'    : 'Buffer Cache Hit Ratio is %s%%',
                             'label'     : 'buffer_cache_hit_ratio',
