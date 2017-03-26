@@ -69,7 +69,7 @@ MODES = {
                             'type'      : 'standard',
                             },
     
-    'transpec'          : { 'help'      : 'Transactions Per Second',
+    'transpsec'         : { 'help'      : 'Transactions Per Second',
                             'stdout'    : 'Transactions Per Second is %s/sec',
                             'label'     : 'transactions_per_sec',
                             'query'     : BASE_QUERY % 'Transactions/sec',
@@ -218,7 +218,7 @@ class MSSQLDeltaQuery(MSSQLQuery):
         
         new_run = { 'time' : time.time(), 'query_result' : self.query_result }
         
-        #~ Will throw IOError, leaving it to aquiesce
+        #~ Will throw IOError, leaving it to acquiesce
         tmpfile = open(self.picklename, 'w')
         pickle.dump(new_run, tmpfile)
         tmpfile.close()
