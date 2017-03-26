@@ -69,7 +69,7 @@ MODES = {
                             'type'      : 'standard',
                             },
     
-    'transpec'          : { 'help'      : 'Transactions Per Second',
+    'transpsec'         : { 'help'      : 'Transactions Per Second',
                             'stdout'    : 'Transactions Per Second is %s/sec',
                             'label'     : 'transactions_per_sec',
                             'query'     : BASE_QUERY % 'Transactions/sec',
