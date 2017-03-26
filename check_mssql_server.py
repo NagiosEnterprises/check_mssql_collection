@@ -368,7 +368,7 @@ class MSSQLDeltaQuery(MSSQLQuery):
         
         new_run = { 'time' : time.time(), 'query_result' : self.query_result }
         
-        #~ Will throw IOError, leaving it to aquiesce
+        #~ Will throw IOError, leaving it to acquiesce
         tmpfile = open(self.picklename, 'w')
         pickle.dump(new_run, tmpfile)
         tmpfile.close()
