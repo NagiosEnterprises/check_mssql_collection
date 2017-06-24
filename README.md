@@ -4,6 +4,7 @@ check_mssql_collection
 check_mssql_collection is a set of Nagios plugins for checking the status of a
 Microsoft SQL Server.
 
+
 Installation
 ------------
 
@@ -47,19 +48,23 @@ database, this check should almost always return with a warning.
 ```
 service nagios restart
 ```
+
+
 Changes
 -------
 
-Changes can be seen at the CHANGELOG file.
+Changes can be seen at the [CHANGELOG](CHANGELOG.md) file.
+
 
 Contributors
 ------------
 
-Please see the file at CONTRIBUTORS for a full list of authors, contributors,
+Please see the file at [CONTRIBUTORS](CONTRIBUTORS.md) for a full list of authors, contributors,
 and maintainers.
 
+
 Current Version
-----------------------
+---------------
 
 The current version of these scripts can be found at:
 
@@ -69,11 +74,14 @@ Other open-source Nagios software can be found at:
 
   https://github.com/NagiosEnterprises/
 
-License
--------
 
-These plugins are released under GPLv3. See the full license at the LICENSE 
+
+License Notice
+--------------
+
+These plugins are released under GPLv2. See the full license at the [LICENSE](LICENSE.md)
 file.
+
 
 Questions?
 ----------
