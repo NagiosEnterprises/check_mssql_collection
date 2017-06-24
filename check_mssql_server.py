@@ -1,30 +1,27 @@
 #!/usr/bin/env python
 
+########################################################################
+# check_mssql_server - A Nagios plugin to check Microsoft SQL Server
+# Copyright (C) 2016  Nicholas Scott
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 ################### check_mssql_server.py ##############################
 # Version    : 2.1.0
 # Date       : 06/09/2016
 # Maintainer : Nagios Enterprises, LLC
 # Licence    : GPLv3 (http://www.fsf.org/licenses/gpl.txt)
-#
-# Author/Maintainers:
-#   Nicholas Scott (Original author, Nagios)
-#   Jake Omann (Nagios)
-#   Scott Wilkerson (Nagios)
-#
-# Changelog :
-#   2.1.0 - Added server cpu usage, memory usage, and connection counters (campenberger)
-#   2.0.3 - Remove misleading description of lockwait, removing the word Average (SW)
-#   2.0.2 - Fixed issues where the SQL cache hit queries were yielding improper results when done on large systems (CTrahan)
-#   2.0.1 - Fixed try/finally statement to accomodate Python 2.4 for legacy systems (NS)
-#   2.0.0 - Complete rewrite of the structure, re-evaluated some queries to hopefully make them more portable (CFriese)
-#           Updated the way averages are taken, no longer needs tempdb access (NS)
-#   1.2.0 - Added ability to specify instances (NS)
-#   1.1.0 - Fixed port bug allowing for non default ports (CBTSDon)
-#           Added batchreq, sqlcompilations, fullscans, pagelife (Thanks mike from austria)
-#           Added mode error checking which caused non-graceful exit (Thanks mike from austria)
-#   1.0.2 - Fixed Uptime Counter to be based off of database (NS)
-#           Fixed divide by zero error in transpsec (NS)
-#
 ########################################################################
 
 import pymssql

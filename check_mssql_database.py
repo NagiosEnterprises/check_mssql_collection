@@ -1,25 +1,26 @@
 #!/usr/bin/env python
-
+########################################################################
+# check_mssql_database - A Nagios plugin to check Microsoft SQL Server
+# Copyright (C) 2016  Nicholas Scott
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 ################### check_mssql_database.py ############################
 # Version    : 2.0.1
 # Date       : 06/09/2016
 # Maintainer : Nagios Enterprises, LLC
 # Licence    : GPLv3 (http://www.fsf.org/licenses/gpl.txt)
-#
-# Author/Maintainers:
-#   Nicholas Scott (Original author, Nagios)
-#   Jake Omann (Nagios)
-#   Scott Wilkerson (Nagios)
-#
-# Changelog:
-#   2.0.1 - Fixed bug where temp file was named same as other for host and numbers were coming back bogus. (NS)
-#   2.0.0 - Complete Revamp/Rewrite based on the server version of this plugin (NS)
-#   1.3.0 - Added ability specify MSSQL instances (NS)
-#   1.2.0 - Added ability to monitor instances (NS)
-#           Added check to see if pymssql is installed (NS)
-#   1.1.0 - Fixed port bug allowing for non default ports (CBTSDon)
-#           Added mode error checking which caused non-graceful exit (Thanks mike from austria)
-#
 ########################################################################
 
 import pymssql
