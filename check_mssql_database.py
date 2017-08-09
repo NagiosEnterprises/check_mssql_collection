@@ -19,8 +19,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 ################### check_mssql_database.py ############################
-# Version    : 2.1.0
-# Date       : 06/24/2016
+# Version    : 2.1.1
+# Date       : 08/08/2017
 # Maintainer : Nagios Enterprises, LLC
 # License    : GPLv2 (LICENSE.md / https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 ########################################################################
@@ -35,8 +35,8 @@ except:
     import pickle
 from optparse import OptionParser, OptionGroup
 
-BASE_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name='%s' AND instance_name='%%s';"
-DIVI_QUERY = "SELECT cntr_value FROM sysperfinfo WHERE counter_name LIKE '%s%%%%' AND instance_name='%%s';"
+BASE_QUERY = "SELECT cntr_value FROM sys.sysperfinfo WHERE counter_name='%s' AND instance_name='%%s';"
+DIVI_QUERY = "SELECT cntr_value FROM sys.sysperfinfo WHERE counter_name LIKE '%s%%%%' AND instance_name='%%s';"
 
 MODES = {
     
@@ -190,7 +190,7 @@ class MSSQLDeltaQuery(MSSQLQuery):
     
     def make_pickle_name(self):
         tmpdir = tempfile.gettempdir()
-        tmpname = hash(self.host + self.table + self.query)
+        tmpname = hash(self.host + self.options.table + self.query)
         self.picklename = '%s/mssql-%s.tmp' % (tmpdir, tmpname)
     
     def calculate_result(self):
@@ -217,7 +217,7 @@ class MSSQLDeltaQuery(MSSQLQuery):
             new_val  = self.query_result
             self.result = ((new_val - old_val) / (new_time - old_time)) * self.modifier
         else:
-            self.result = None
+            self.result = 0
         
         new_run = { 'time' : time.time(), 'query_result' : self.query_result }
         
