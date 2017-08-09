@@ -57,7 +57,7 @@ MODES = {
                             'type'      : 'standard',
                             },
     
-    'logflushes'         : { 'help'      : 'Log Flushes Per Second',
+    'logflushes'         : { 'help'     : 'Log Flushes Per Second',
                             'stdout'    : 'Log Flushes Per Second is %s/sec',
                             'label'     : 'log_flushes_per_sec',
                             'query'     : BASE_QUERY % 'Log Flushes/sec',
@@ -121,10 +121,19 @@ MODES = {
 }
 
 def return_nagios(options, stdout='', result='', unit='', label=''):
-    if int(options.critical) < int(options.warning):
+    invert = False
+    w = options.warning
+    c = options.critical
+
+    # Check for ranges
+    if ':' in options.critical and ':' in options.warning:
+        c = options.critical.split(':')[1]
+        w = options.warning.split(':')[1]
+
+    # Check if we should invert the warning/critical (this should change someday)
+    if int(c) < int(w):
         invert = True
-    else:
-        invert = False
+
     if is_within_range(options.critical, result, invert):
         prefix = 'CRITICAL: '
         code = 2
@@ -134,6 +143,7 @@ def return_nagios(options, stdout='', result='', unit='', label=''):
     else:
         prefix = 'OK: '
         code = 0
+
     strresult = str(result)
     stdout = stdout % (strresult)
     stdout = '%s%s|%s=%s%s;%s;%s;;' % (prefix, stdout, label, strresult, unit, options.warning or '', options.critical or '')
@@ -371,4 +381,3 @@ if __name__ == '__main__':
         print type(e)
         print "Caught unexpected error. This could be caused by your sysperfinfo not containing the proper entries for this query, and you may delete this service check."
         sys.exit(3)
-
