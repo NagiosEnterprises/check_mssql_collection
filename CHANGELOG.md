@@ -33,6 +33,12 @@ Server Changelog
 Database Changelog
 ==================
 
+## 2.1.1
+ * Fixed range values that were inverse (JO)
+
+## 2.1.0
+ * Updated release with spelling fixes
+
 ## 2.0.1 
  * Fixed bug where temp file was named same as other for host and numbers were coming back bogus. (NS)
 
