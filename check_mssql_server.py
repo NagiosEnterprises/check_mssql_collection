@@ -67,7 +67,7 @@ MODES = {
 
     'cpu'               : { 'help'      : 'Server CPU utilization',
                             'stdout'    : 'Current CPU utilization is %s%%',
-                            'lablel'    : 'cpu',
+                            'label'    : 'cpu',
                             'query'     : CPU_QUERY
                             },
 
