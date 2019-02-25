@@ -215,7 +215,7 @@ class MSSQLDeltaQuery(MSSQLQuery):
         try:
             try:
                 last_run = pickle.load(tmpfile)
-            except EOFError, ValueError:
+            except EOFError as ValueError:
                 last_run = { 'time' : None, 'value' : None }
         finally:
             tmpfile.close()
@@ -280,7 +280,7 @@ def parse_args():
     
     mode = OptionGroup(parser, "Mode Options")
     global MODES
-    for k, v in zip(MODES.keys(), MODES.values()):
+    for k, v in zip(list(MODES.keys()), list(MODES.values())):
         mode.add_option('--%s' % k, action="store_true", help=v.get('help'), default=False)
     parser.add_option_group(mode)
     options, _ = parser.parse_args()
@@ -353,31 +353,31 @@ def run_tests(mssql, options, host):
     total  = 0
     del MODES['time2connect']
     del MODES['test']
-    for mode in MODES.keys():
+    for mode in list(MODES.keys()):
         total += 1
         options.mode = mode
         try:
             execute_query(mssql, options, host)
         except NagiosReturn:
-            print "%s passed!" % mode
-        except Exception, e:
+            print("%s passed!" % mode)
+        except Exception as e:
             failed += 1
-            print "%s failed with: %s" % (mode, e)
-    print '%d/%d tests failed.' % (failed, total)
+            print("%s failed with: %s" % (mode, e))
+    print('%d/%d tests failed.' % (failed, total))
     
 if __name__ == '__main__':
     try:
         main()
-    except pymssql.OperationalError, e:
-        print e
+    except pymssql.OperationalError as e:
+        print(e)
         sys.exit(3)
-    except IOError, e:
-        print e
+    except IOError as e:
+        print(e)
         sys.exit(3)
-    except NagiosReturn, e:
-        print e.message
+    except NagiosReturn as e:
+        print(e.message)
         sys.exit(e.code)
-    except Exception, e:
-        print type(e)
-        print "Caught unexpected error. This could be caused by your sysperfinfo not containing the proper entries for this query, and you may delete this service check."
+    except Exception as e:
+        print(type(e))
+        print("Caught unexpected error. This could be caused by your sysperfinfo not containing the proper entries for this query, and you may delete this service check.")
         sys.exit(3)
