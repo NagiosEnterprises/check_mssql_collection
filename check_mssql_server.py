@@ -19,8 +19,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 ################### check_mssql_server.py ##############################
-# Version    : 2.1.0
-# Date       : 06/24/2016
+# Version    : 2.1.1
+# Date       : 03/12/2019
 # Maintainer : Nagios Enterprises, LLC
 # License    : GPLv2 (LICENSE.md / https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 ########################################################################
