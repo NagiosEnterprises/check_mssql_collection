@@ -1,6 +1,9 @@
 Server Changelog
 ================
 
+## 2.1.1
+ * Added Python 3 support (HeMan)
+
 ## 2.1.0 
  * Added server cpu usage, memory usage, and connection counters (campenberger)
 
