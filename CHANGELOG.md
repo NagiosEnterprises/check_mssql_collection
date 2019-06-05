@@ -36,6 +36,9 @@ Server Changelog
 Database Changelog
 ==================
 
+## 2.1.2
+ * Fixed issue with division by zero when the cache hit ratio counter is zero (JO)
+
 ## 2.1.1
  * Fixed range values that were inverse (JO)
 

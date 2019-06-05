@@ -19,8 +19,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 ################### check_mssql_database.py ############################
-# Version    : 2.1.1
-# Date       : 03/12/2019
+# Version    : 2.1.2
+# Date       : ??/??/2019
 # Maintainer : Nagios Enterprises, LLC
 # License    : GPLv2 (LICENSE.md / https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 ########################################################################
@@ -189,7 +189,10 @@ class MSSQLQuery(object):
 class MSSQLDivideQuery(MSSQLQuery):
     
     def calculate_result(self):
-        self.result = (float(self.query_result[0]) / self.query_result[1]) * self.modifier
+        if self.query_result[1] == 0:
+            self.result = 0
+        else:
+            self.result = (float(self.query_result[0]) / self.query_result[1]) * self.modifier
     
     def run_on_connection(self, connection):
         cur = connection.cursor()
