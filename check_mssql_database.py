@@ -20,7 +20,7 @@
 #
 ################### check_mssql_database.py ############################
 # Version    : 2.1.2
-# Date       : ??/??/2019
+# Date       : 06/18/2019
 # Maintainer : Nagios Enterprises, LLC
 # License    : GPLv2 (LICENSE.md / https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 ########################################################################
